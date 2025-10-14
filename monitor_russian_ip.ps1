@@ -9,6 +9,7 @@ $checkInterval = $config.checkInterval
 $tg_token = $config.tg_token
 $tg_chat_id = $config.tg_chat_id
 $whitelistIPRanges = $config.whitelistIPRanges
+$notifications_only = $config.notifications_only
 
 $script:monitoring = $true
 $firewallRuleName = "Block Non-Whitelist IPs"
@@ -220,22 +221,21 @@ function Start-IPMonitoring {
                 Write-Host "NON-WHITELISTED IP DETECTED!" -ForegroundColor Red -BackgroundColor White
 
                 # 1. Send Telegram notification
-                $tgMessage = "🚨 NON-WHITELISTED IP DETECTED: $($ipInfo.IP)`nTime: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`nStatus: BLOCKED"
+                $tgMessage = "🚨 NON-WHITELISTED IP DETECTED: $($ipInfo.IP)`nTime: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`nStatus: $(if ($notifications_only) {'NOTIFICATIONS ONLY'} else {'BLOCKED'})"
                 Send-TelegramNotification -messageText $tgMessage
 
                 # 2. Show popup notification
-                Show-Notification "NON-WHITELISTED IP DETECTED!`nIP: $($ipInfo.IP)`nCountry: $($ipInfo.Country)`nCity: $($ipInfo.City)"
-                
-                # 3. Enable firewall block and ask user
-                if ($isAdmin) {
-                    Enable-InternetBlock | Out-Null
-                    Invoke-UserChoice -CurrentIP $ipInfo.IP | Out-Null
-                }
-            } else {
-                # Если IP в whitelist, убедимся что блокировка отключена
-                if ($isAdmin -and $ipsBlocked) {
-                    Disable-InternetBlock | Out-Null
-                    Write-Host "Whitelisted IP detected - internet access enabled" -ForegroundColor Green
+                Show-Notification "NON-WHITELISTED IP DETECTED!`nIP: $($ipInfo.IP)`nMode: $(if ($notifications_only) {'NOTIFICATIONS ONLY'} else {'BLOCKING ACTIVE'})"
+
+                # 3. Если режим "только уведомления" - не блокируем и не показываем выбор
+                if (-not $notifications_only) {
+                    # Enable firewall block and ask user (старая логика)
+                    if ($isAdmin) {
+                        Enable-InternetBlock | Out-Null
+                        Invoke-UserChoice -CurrentIP $ipInfo.IP | Out-Null
+                    }
+                } else {
+                    Write-Host "Notifications-only mode: Internet NOT blocked" -ForegroundColor Yellow
                 }
             }
         }
