@@ -1,0 +1,1 @@
+﻿Remove-NetFirewallRule -DisplayName "Block Russian IPs" -ErrorAction SilentlyContinue
