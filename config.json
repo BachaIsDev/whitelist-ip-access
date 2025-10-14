@@ -1,0 +1,8 @@
+{
+  "checkInterval": 10,
+  "tg_token": "5916664980:AAG_kfjbd7550xvwEjey-7_2aPyXvmTUWp0",
+  "tg_chat_id": "759265022",
+  "whitelistIPRanges": [
+    "104.28.200.198"
+  ]
+}
