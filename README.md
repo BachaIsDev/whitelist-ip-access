@@ -1,66 +1,67 @@
-# russian-ip-monitoring
-Russian IP Monitor & Blocker
-PowerShell скрипт для мониторинга и автоматической блокировки интернет-трафика при обнаружении российских IP-адресов.
+# Whitelist-ip-access
+Whitelist IP Monitor & Blocker
+PowerShell script for monitoring and automactic block of web-traffic when IP is not in whitelist.
 
-# 📋 Функциональность
-Блокировка трафика: Автоматическое создание и управление правилами брандмауэра Windows
+# 📋 Functionality
+Traffic block: Automatic creation and management of rules of the Windows firewall
 
-Уведомления:
-Popup-уведомления в системе
-Telegram-уведомления (опционально)
+Notifications:
+System popup-notifications
 
-# 🔧 Настройка
-1. Базовая настройка
-Отредактируйте переменные в разделе конфигурации скрипта:
+Telegram-notifications (опционально)
 
-powershell
-$checkInterval = 30                    # Интервал проверки в секундах
-$tg_token = "YOUR_BOT_TOKEN"           # Токен Telegram бота (создайте своего бота или используйте существующий уже указанный в скрипте)
-$tg_chat_id = "YOUR_CHAT_ID"           # ID чата в Telegram
-
-2. Настройка Telegram
-
-2.1 Настройка Telegram бота (опционально)
-Создайте бота через @BotFather
-Получите токен бота
-Вставьте его токен в tg_token
-
-2.2 Получение своего ID чата
-Узнайте ваш Chat ID через @my_id_bot
-Вставьте полученные значения в скрипт
-
-# 🚀 Запуск скрипта
-Ручной запуск
-Сохраните скрипт как Russian_IP_Monitor.ps1
-
-Запустите PowerShell от имени администратора:
+# 🔧 Setting
+1. Base setting
+Edit env variables in config.json
 
 powershell
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-Запустите скрипт:
+checkInterval = 30                    # Check interval
+tg_token = "YOUR_BOT_TOKEN"           # Telegram bot token (You can create your own bot or use existing which already defined in the script)
+tg_chat_id = "YOUR_CHAT_ID"           # Telegram chat id
+notifications_only                    # No blocking mode, only notifications
+
+2. Telegram setting
+
+2.1 Telegram bot setting (optional)
+Create bot with @BotFather
+Receive bot token
+Insert it into tg_token in config.json
+
+2.2 Telegram chat id receiving
+Find out your Chat ID via @my_id_bot
+Insert that value into chat_id env variable in .json
+
+# 🚀 Launch
+
+Launch PowerShell as an administrator:
+
+powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser - with default ExecutionPolicy Powershell doesn't allow to launch custom scripts
+
+Launch script:
 
 powershell
 .\monitor_russian_ip.ps1
 
-# 🛡️ Безопасность 
-Скрипт требует права администратора для:
+# 🛡️ Security
+Script requires adminstrator rights for:
 
-Создания правил брандмауэра Windows
+Create Windows firewall rule
 
-Управления сетевыми подключениями
+Network connection management
 
-Модификации сетевых настроек
+Network setting modification
 
 
-# ⚠️ Важные примечания
-Автоматическое восстановление: При корректном завершении скрипта блокировка трафика автоматически отключается
+# ⚠️ Important notes
+Automatic recovery: When the script is ended correctly traffic blocking is automatically disabled
 
-Ручное управление: При аварийном завершении может потребоваться ручное отключение правила брандмауэра
+Manual management: When the script is ended incorrectly you mignt need to delete firewall rule manually
 
-Производительность: Скрипт оптимизирован для работы в фоновом режиме
+Performance: Script is optimized to work in the background mode
 
-Совместимость: Протестирован на Windows 11, должен работать на Windows 7/8/10
+Compatibility: Script tested on Windows 11, should work on Windows 7/8/10
 
-# 🔄 Восстановление подключения вручную
-Если скрипт завершился некорректно и доступ к интернету не восстановился, то выполните скрипт unlock_net.ps1
+# 🔄 Restore connection
+When the script is ended incorrectly and you have no network connection launch script - unlock_net.ps1.
 
