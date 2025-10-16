@@ -5,11 +5,12 @@
 $configPath = Join-Path $PSScriptRoot "config.json"
 $config = Get-Content $configPath | ConvertFrom-Json
 
-$checkInterval = $config.checkInterval
+$check_interval = $config.check_interval
 $tg_token = $config.tg_token
 $tg_chat_id = $config.tg_chat_id
-$whitelistIPRanges = $config.whitelistIPRanges
+$whitelist_IP_ranges = $config.whitelist_IP_ranges
 $notifications_only = $config.notifications_only
+$enable_telegram_notifications = $config.enable_telegram_notifications
 
 $script:monitoring = $true
 $firewallRuleName = "Block Non-Whitelist IPs"
@@ -37,11 +38,11 @@ function Test-IsWhitelistedIP {
     param([string]$IP)
 
     # Если whitelist пуст, блокируем все IP
-    if ($whitelistIPRanges.Count -eq 0) {
+    if ($whitelist_IP_ranges.Count -eq 0) {
         return $false
     }
 
-    foreach ($range in $whitelistIPRanges) {
+    foreach ($range in $whitelist_IP_ranges) {
         if (Test-IPInRange -IP $IP -Range $range) {
             return $true
         }
@@ -131,6 +132,12 @@ function Disable-InternetBlock {
 function Send-TelegramNotification {
     param([string]$messageText)
 
+    # Проверяем, включены ли телеграм уведомления
+    if (-not $enable_telegram_notifications) {
+        Write-Host "Telegram notifications are disabled in config" -ForegroundColor Gray
+        return
+    }
+
     if ($tg_token -eq "YOUR_BOT_TOKEN" -or $tg_chat_id -eq "YOUR_CHAT_ID") {
         Write-Host "Telegram not configured. Please set token and chat ID." -ForegroundColor Yellow
         return
@@ -183,14 +190,14 @@ function Show-ScriptStatus {
     Write-Host "    IP MONITORING SCRIPT (WHITELIST)" -ForegroundColor Cyan
     Write-Host "=========================================" -ForegroundColor Cyan
     Write-Host "Status: RUNNING" -ForegroundColor Green
-    Write-Host "Mode: Whitelist Only" -ForegroundColor Blue
+    Write-Host "Mode: $(if ($notifications_only) {'NOTIFICATIONS ONLY'} else {'BLOCKING'})" -ForegroundColor $(if ($notifications_only) {'Yellow'} else {'Blue'})
+    Write-Host "Telegram: $(if ($enable_telegram_notifications) {'ENABLED'} else {'DISABLED'})" -ForegroundColor $(if ($enable_telegram_notifications) {'Green'} else {'Gray'})
     Write-Host "Whitelist Entries: $($whitelistIPRanges.Count)" -ForegroundColor Yellow
     Write-Host "Check Interval: $checkInterval seconds" -ForegroundColor Yellow
     Write-Host "Firewall Block: $(if ($ipsBlocked) {'ACTIVE'} else {'INACTIVE'})" -ForegroundColor $(if ($ipsBlocked) {'Red'} else {'Green'})
     Write-Host "Press Ctrl+C to stop monitoring" -ForegroundColor Gray
     Write-Host "=========================================" -ForegroundColor Cyan
 }
-
 # Main monitoring function
 function Start-IPMonitoring {
     Write-Host "Starting IP monitoring with whitelist..." -ForegroundColor Green
@@ -244,8 +251,8 @@ function Start-IPMonitoring {
         }
 
         # Wait for interval
-        Write-Host "Waiting $checkInterval seconds until next check..." -ForegroundColor Gray
-        Start-Sleep -Seconds $checkInterval
+        Write-Host "Waiting $check_interval seconds until next check..." -ForegroundColor Gray
+        Start-Sleep -Seconds $check_interval
     }
 }
 
@@ -253,10 +260,10 @@ function Start-IPMonitoring {
 Clear-Host
 Write-Host "IP Monitoring Script with Whitelist Starting..." -ForegroundColor Cyan
 Write-Host "Mode: Block all non-whitelisted IP addresses" -ForegroundColor Blue
-Write-Host "Whitelist entries: $($whitelistIPRanges.Count)" -ForegroundColor Yellow
-Write-Host "Check Interval: $checkInterval seconds" -ForegroundColor Yellow
+Write-Host "Whitelist entries: $($whitelist_IP_ranges.Count)" -ForegroundColor Yellow
+Write-Host "Check Interval: $check_interval seconds" -ForegroundColor Yellow
 
-if ($whitelistIPRanges.Count -eq 0) {
+if ($whitelist_IP_ranges.Count -eq 0) {
     Write-Host "WARNING: Whitelist is empty! All IPs will be blocked!" -ForegroundColor Red
 }
 
