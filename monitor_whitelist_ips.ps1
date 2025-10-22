@@ -20,6 +20,15 @@ $ipsBlocked = $false
 function Get-CurrentIP {
     try {
         Write-Host "Getting public IP information..." -ForegroundColor Gray
+
+        # Refresh ServicePoint for api.ipify.org,
+        # to avoid caching by connection change (VPN on/off)
+        $servicePoint = [System.Net.ServicePointManager]::FindServicePoint("https://api.ipify.org")
+        if ($servicePoint) {
+            $servicePoint.CloseConnectionGroup("") | Out-Null
+            $servicePoint.ConnectionLeaseTimeout = 0  # Turn off keep-alive
+        }
+
         $publicIP = Invoke-RestMethod -Uri "https://api.ipify.org" -TimeoutSec 10
         Write-Host "Public IP: $publicIP" -ForegroundColor Cyan
 
@@ -32,7 +41,6 @@ function Get-CurrentIP {
         return $null
     }
 }
-
 # Function to check if IP is in whitelist
 function Test-IsWhitelistedIP {
     param([string]$IP)
@@ -221,7 +229,6 @@ function Start-IPMonitoring {
         if ($ipInfo) {
             $isWhitelisted = Test-IsWhitelistedIP -IP $ipInfo.IP
 
-            Write-Host "IP: $($ipInfo.IP)" -ForegroundColor $(if ($isWhitelisted) {'Green'} else {'Red'})
             Write-Host "Whitelisted: $isWhitelisted" -ForegroundColor $(if ($isWhitelisted) {'Green'} else {'Red'})
 
             if (-not $isWhitelisted) {

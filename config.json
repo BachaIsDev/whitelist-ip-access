@@ -1,10 +1,11 @@
 {
   "check_interval": 10,
   "tg_token": "5916664980:AAG_kfjbd7550xvwEjey-7_2aPyXvmTUWp0",
-  "tg_chat_id": "759265022",
+  "tg_chat_id": "<INSERT_YOUR_CHAT_ID>",
   "whitelist_IP_ranges": [
-    "104.28.200.197"
+    "104.28.200.197",
+    "157.180.66.224"
   ],
-  "notifications_only": false,
-  "enable_telegram_notifications": true
+  "notifications_only": true,
+  "enable_telegram_notifications": false
 }
